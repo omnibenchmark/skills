@@ -1,0 +1,10 @@
+{
+  "name": "omnibenchmark",
+  "version": "0.0.1",
+  "description": "Agent skills for authoring, porting and validating Omnibenchmark benchmarks.",
+  "author": { "name": "Omnibenchmark" },
+  "repository": "https://github.com/omnibenchmark/skills",
+  "homepage": "https://docs.omnibenchmark.org",
+  "license": "Apache-2.0",
+  "keywords": ["benchmarking", "bioinformatics", "reproducibility", "snakemake", "omnibenchmark"]
+}

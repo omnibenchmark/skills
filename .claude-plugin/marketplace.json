@@ -1,0 +1,14 @@
+{
+  "name": "omnibenchmark",
+  "owner": { "name": "Omnibenchmark" },
+  "description": "Agent skills for authoring, porting and validating Omnibenchmark benchmarks.",
+  "plugins": [
+    {
+      "name": "omnibenchmark",
+      "source": "./",
+      "description": "Assists with porting an existing benchmark to Omnibenchmark: decomposing it into atomic modules, writing and validating the benchmark plan, and wiring module CLIs to stage inputs/outputs.",
+      "category": "science",
+      "keywords": ["benchmarking", "bioinformatics", "reproducibility", "snakemake", "omnibenchmark"]
+    }
+  ]
+}
