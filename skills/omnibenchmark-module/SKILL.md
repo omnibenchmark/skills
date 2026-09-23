@@ -195,6 +195,7 @@ so `omnibenchmark.yaml` must have that key:
 
 ```yaml
 entrypoints:
+  default: pca.py   # keep this: alias for the primary entrypoint
   pca: pca.py
   knn: knn.py
 ```
@@ -202,11 +203,18 @@ entrypoints:
 An entrypoint value may carry a prefix command (the exemplars use
 `pca-prof: prof.sh pca.py` for a profiled variant).
 
-**Consequence worth knowing before CI turns red:** once you drop `default`,
-`ob validate module` warns `omnibenchmark.yaml 'entrypoints' is missing required
-'default' key`, and `--strict` turns that warning into a failure (exit 1 —
-measured on three real modules). Either keep `default:` as an alias for your
-primary entrypoint, or run CI non-strict (which is the action's default, §9).
+**Always keep a `default:` alias pointing at the module's primary entrypoint.**
+Without it `ob validate module` warns `omnibenchmark.yaml 'entrypoints' is
+missing required 'default' key`, and `--strict` turns that warning into a
+failure — exit 1, measured on `scanpy`, `5-pca-irlba-r` and `metrics`. Adding
+the alias takes the same module to exit 0 (verified), which is what makes
+`--strict` usable in CI at all. It costs one duplicated line and buys a CI
+signal that would otherwise have to stay off.
+
+This is a workaround for a validator that assumes every module has one
+entrypoint, not a design statement: the alias duplicates whichever named
+entrypoint you consider primary. Revisit it if the upstream check learns about
+named entrypoints.
 
 ## 8. Register the module in the plan
 

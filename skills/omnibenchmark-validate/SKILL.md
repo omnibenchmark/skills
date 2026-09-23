@@ -88,8 +88,11 @@ Three consequences that matter in practice:
   scaffold is the clearest possible statement of what it measures.
 - **Any module with named entrypoints and no `default:` fails `--strict`** with
   `omnibenchmark.yaml 'entrypoints' is missing required 'default' key` (exit 1;
-  measured on three production modules). Keep a `default:` alias or leave CI
-  non-strict.
+  measured on `scanpy`, `5-pca-irlba-r` and `metrics`). The house answer is to
+  keep a `default:` alias pointing at the primary entrypoint — adding one takes
+  the same module to exit 0 (verified), which is the only thing that makes
+  `--strict` viable in CI today. Treat a module without the alias as a defect to
+  fix, not a reason to run CI non-strict.
 - The validator never checks that an entrypoint's script exists, is
   executable, or accepts the stage's flags.
 

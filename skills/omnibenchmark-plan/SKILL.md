@@ -1,6 +1,6 @@
 ---
 name: omnibenchmark-plan
-description: "Read, write, validate and migrate an Omnibenchmark benchmark plan (the benchmark YAML) at api_version 0.7.0. Load this when you open or edit a benchmark.yaml, when `ob create benchmark` has just scaffolded one, when deciding what is a stage versus a parameter, when wiring stage inputs/outputs or output path templates, when adding `provides`/`requires` lineage labels, `requires_capabilities` or a `gather` fan-in, when `ob validate plan` fails, or when a plan declares api_version 0.4.0 (or none at all) and has to be migrated. Covers the document structure, software environments, module repository pinning, parameter grids, the wildcard vocabulary, and the stage contract a module must satisfy."
+description: "Read, write, validate and migrate an Omnibenchmark benchmark plan (the benchmark YAML) at api_version 0.7.0. Load this when you open or edit a benchmark.yaml, when `ob create benchmark` has just scaffolded one, when deciding what is a stage versus a parameter, when wiring stage inputs/outputs or output path templates, when adding `provides`/`requires` lineage labels, `requires_capabilities` or a `gather` fan-in, when `ob validate plan` fails, when a plan declares api_version 0.4.0 (or none at all) and has to be migrated, or when an author needs to stay on the legacy 0.4.0 contract deliberately. Covers the document structure, software environments, module repository pinning, parameter grids, the wildcard vocabulary, and the stage contract a module must satisfy."
 ---
 
 # The benchmark plan
@@ -36,6 +36,42 @@ The convention for this pack is **0.7.0 everywhere, migrate on sight**. So:
    `api_version <= 0.4.0` the runtime passes the **dataset** id as `--name`,
    and from `0.5.0` it passes the **module's own** id. A module that builds its
    output filename from `--name` writes a different filename after the bump.
+
+### Legacy 0.4.0 compatibility — opt-in, never the default
+
+Sometimes staying on the legacy contract is the right call: collaborators pinned
+to an older `ob`, a plan mid-review, or a fleet of modules that still build
+filenames from `--name` and cannot all be fixed in one change. That is a
+decision for the benchmark author, so **offer it, never assume it**.
+
+The rule is asymmetric on purpose:
+
+- **Default:** propose `0.7.0` on every plan you touch, and say what the bump
+  changes.
+- **On request:** if the author says they need 0.4.0 compatibility, keep
+  `api_version: "0.4.0"` — written explicitly, not left absent — and say in one
+  line why it is pinned and what unpins it. An absent key and a deliberate
+  `"0.4.0"` behave identically to the parser but read very differently to the
+  next person.
+
+Working under a 0.4.0 pin means:
+
+- `provides`, `gather` on a stage, and `provides` on a module are rejected
+  outright by the model. Do not write them, and do not suggest designs that
+  need them (shared output ids resolved by lineage, label-based fan-in).
+- `--name` carries the **dataset** id, so `{dataset}`-shaped output templates
+  and modules that write `<name>_<suffix>` agree with each other. This is the
+  main reason a legacy pin is coherent rather than merely old.
+- `requires_capabilities` and `Module.requires` parse at 0.4.0 — the model does
+  not gate them despite §3.10 — but they are 0.7.0 features on paper. Using
+  them under a pin works today and is a bet on the gate never being enforced;
+  flag that trade rather than reaching for them silently.
+- Say plainly that this is a holding position. Record the unpin condition
+  (collaborators upgraded, modules' filename contract settled) where the author
+  will see it — a comment above the key is enough.
+
+Never migrate a pinned plan back to 0.7.0 without asking, and never leave a plan
+on 0.4.0 by omission and call it a decision.
 
 ## Ask before you write
 

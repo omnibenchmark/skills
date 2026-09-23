@@ -12,6 +12,19 @@
 - **`ob remote` / storage.** S3 and MinIO versioning is documented in design 003 (Draft)
   and has no skill.
 
+## Decided
+
+- **`api_version`: 0.7.0 is the default; 0.4.0 is an opt-in escape hatch.** The skills
+  propose `0.7.0` on every plan they touch and explain the bump. If the author asks for
+  legacy compatibility, the pin is written explicitly as `api_version: "0.4.0"` (never
+  left absent) together with the reason and the condition that would unpin it. See
+  `skills/omnibenchmark-plan/SKILL.md`.
+- **Modules keep an `entrypoints: default:` alias.** Mandatory for now. Without it
+  `ob validate module --strict` exits 1 on every module with named entrypoints; adding an
+  alias for the primary entrypoint takes the same module to exit 0 (verified on `scanpy`).
+  It is a workaround for a validator that assumes one entrypoint per module, and it is
+  what makes `--strict` usable in CI at all. Revisit if issue 10 below is fixed upstream.
+
 ## Unresolved design questions
 
 These came out of authoring and need a decision from the benchmark maintainers. Each one
@@ -37,13 +50,10 @@ author rather than assuming.
 `six-embedding-metrics`; the live plan and `schema/*.json` use `FILT` / `PCA` / `EMBED-M`;
 `validators/` contains both styles. Which is canonical?
 
-### 3. `--strict` in CI
+### 3. `--strict` in CI — decided, see "Decided" above
 
-Replacing the scaffold's single `default` entrypoint with named ones triggers
-"omnibenchmark.yaml 'entrypoints' is missing required 'default' key", and
-`ob validate module --strict` exits 1. Measured on `scanpy`, `5-pca-irlba-r` and `metrics`:
-plain exit 0, strict exit 1 for all three. So `--strict` cannot currently be enabled in CI
-for any production module. Either keep a `default` alias, or change the check upstream.
+Resolved: keep a `default:` alias. Retained here because the upstream check should still
+learn about named entrypoints (issue 10), at which point the alias becomes unnecessary.
 
 ### 4. Environment drift between modules and the plan
 
@@ -91,3 +101,7 @@ Found while authoring; all verified against the `gather-lean-3` checkout.
    second.
 9. The plan repo's validators print OK/FAIL but exit 0 regardless, so CI use needs a grep
    on output rather than the exit status.
+10. `ob validate module` requires an `entrypoints: default:` key even when the module
+    declares named entrypoints, so `--strict` fails on every real module. Modules are now
+    told to carry a duplicate `default:` alias purely to satisfy it; the check should
+    accept a manifest whose entrypoints are all named.
