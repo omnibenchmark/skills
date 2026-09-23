@@ -119,11 +119,27 @@ scanpy module's `pixi.toml` says `python = ">=3.14.4,<3.15"` and its
 often they bite:
 
 - The exported YAML is a *constraint file*, not a lockfile. Conda re-solves it at
-  `ob run` time, so two runs weeks apart can use different builds. If a run must
-  be bit-reproducible, that guarantee has to come from somewhere else (the
-  module's `pixi.lock`, a container, or exact `==` pins in the manifest).
+  `ob run` time, so two runs weeks apart can use different builds.
 - Loose specs export loosely. `r-matrix = "*"` becomes `- r-matrix *`.
 - `channels` are exported in manifest order with `nodefaults` appended.
+
+If a run must be bit-reproducible, `pixi workspace export conda-environment` can
+render the resolved versions instead of the manifest specs:
+
+```bash
+pixi workspace export conda-environment --from-lock-file --name <env> envs/<name>.yml
+```
+
+`--from-lock-file` pins every package to the version `pixi.lock` resolved, producing
+a frozen environment file. Two further flags on the same command are worth knowing:
+`--no-pypi` omits the `pip:` section entirely, and `-p/--platform` renders for a
+platform other than the current one — useful when the benchmark runs on `linux-64`
+and you are authoring on a Mac.
+
+None of the exemplar modules use `--from-lock-file` today; they all export manifest
+specs. Raise it with the author as a deliberate choice rather than switching an
+existing module over unilaterally — a frozen export changes what `ob run` solves, and
+the plan-side copy would have to be regenerated to match.
 
 ## 4. PyPI dependencies become a `pip:` block
 
