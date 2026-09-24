@@ -28,6 +28,8 @@ rather than writing more.
 
 Do these in order. Steps 1–3 happen before a single line of code exists.
 
+0. Check obcommons for an existing module that already wraps the tool
+   (`omnibenchmark-module` skill, §0). Reusing one beats writing one.
 1. Read the stage contract.
 2. Find the one upstream function that is the method.
 3. Ask the author the design questions. Wait for answers.
@@ -280,6 +282,32 @@ put it **first** in `[workspace].channels` (channel order is precedence); the
 Belt and braces for a version that changes results silently: assert it at
 runtime. `rcppml/src/rcppml.R` has a five-line `load_rcppml()` that stops if
 `packageVersion("RcppML") < "1.0.0"`, with an error naming the channel to use.
+
+### When upstream does not install cleanly
+
+Some tools have no usable release: the PyPI wheel is broken, the setup
+metadata pins something unsolvable, or the code needs a fix before it runs.
+Try, in order: a `git` + `rev` pin (above) to a commit that works; relaxing
+the offending pin via an extra `[dependencies]` entry; only then vendor.
+
+To vendor:
+
+1. Copy the upstream source at one commit into `vendor/<tool>/`, and put its
+   `LICENSE` there with it. Check the licence permits redistribution first; if
+   it does not, stop and tell the author.
+2. Keep the fix as a separate file, `vendor/<tool>.patch`, applied on top and
+   committed alongside, so a reviewer sees exactly what changed from upstream
+   and the patch can be sent back. Do not edit the copy silently.
+3. Record the upstream URL, commit and the reason in `vendor/README.md` — three
+   lines. That is the version pin now, so it has to be as exact as a `rev`.
+4. Import it from the repo (`sys.path.insert(0, <module root>/vendor)` in the
+   entrypoint), and put the tool's own runtime dependencies in `pixi.toml`.
+   The plan clones the module at its pinned commit, so vendored code travels
+   with it. Do not route it through a local `path =` PyPI dependency: check the
+   exported `envs/<name>.yml` never carries a path that only exists on your
+   machine.
+
+Say in the PR which route you took and why the cheaper ones failed.
 
 Then export the environment and wire the module into the plan:
 

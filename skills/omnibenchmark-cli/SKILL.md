@@ -29,6 +29,19 @@ python scripts/refresh_cli_reference.py
 This walks every subcommand's `--help` and rewrites `references/cli.md` from the
 installed binary. Commit the regenerated file — it is a cache, not a source.
 
+That applies only inside a checkout of the skill pack. When the skill is loaded
+from an installed plugin (a path under `~/.claude/plugins/`), do not rewrite
+the cached copy — the next plugin update overwrites it anyway. Write the
+reference somewhere disposable and read that instead:
+
+```bash
+python scripts/refresh_cli_reference.py --out "$TMPDIR/ob-cli.md"
+```
+
+and tell the user the shipped reference is stale, naming both versions from
+the `--check` output. If you skip regenerating, treat `references/cli.md` as
+orientation only and take every flag from `ob <command> --help`.
+
 If `ob` is not installed, say so and stop; do not reason about the CLI from
 documentation alone. Installation is from PyPI, and a conda software backend
 additionally requires running `ob` from inside a conda environment manager

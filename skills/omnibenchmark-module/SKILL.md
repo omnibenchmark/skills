@@ -1,6 +1,6 @@
 ---
 name: omnibenchmark-module
-description: "Take an Omnibenchmark module from the `ob create module` scaffold to something that actually runs under a benchmark plan: scaffolding against a stage so the entrypoint's CLI is generated for you, replacing the single `default` entrypoint with named ones, adding envs/ + pixi.toml + LICENSE, fixing the CITATION.cff CHANGE_ME placeholders, writing the stage-contract invariants down as checks, running the module locally with `ob run -m`, and wiring GitHub CI. Use when asked to create a new module, add a stage or entrypoint to an existing one, make a scaffolded module runnable, or work out why a module fails under `ob run`. Also use before writing any module code, to decide with the author which stage, language and outputs are in scope."
+description: "Take an Omnibenchmark module from the `ob create module` scaffold to something that actually runs under a benchmark plan: scaffolding against a stage so the entrypoint's CLI is generated for you, replacing the single `default` entrypoint with named ones, adding envs/ + pixi.toml + LICENSE, fixing the CITATION.cff CHANGE_ME placeholders, writing the stage-contract invariants down as checks, running the module locally with `ob run -m`, and wiring GitHub CI. Use when asked to create a new module, add a stage or entrypoint to an existing one, make a scaffolded module runnable, or work out why a module fails under `ob run`. Also use to find an existing, reusable module in the obcommons registry before writing one, and before writing any module code, to decide with the author which stage, language and outputs are in scope."
 ---
 
 # From scaffold to a module that runs
@@ -17,7 +17,42 @@ cannot explain in one sentence why a line exists, delete the line.
 
 ## 0. Ask before you generate
 
-These answers change the scaffold command itself, so get them first. Ask as
+**First, check whether the module already exists.** obcommons
+(`https://omnibenchmark.github.io/obcommons/`) is the community registry of
+reusable modules: one YAML entry per module, and the whole registry as JSON at
+`https://omnibenchmark.github.io/obcommons/modules.json`. Query that, not the
+HTML page:
+
+```bash
+curl -s https://omnibenchmark.github.io/obcommons/modules.json \
+  | jq '.[] | select(.stage == "data" or (.tags | index("clustering")))
+            | {id, stage, category, requires, repository, inputs, outputs}'
+```
+
+Each entry has `name`, `description`, `repository.{url,commit}`, `stage`,
+`tags`, `category` (`generic` = usable in any benchmark, e.g. downloaders and
+report renderers; `biofx` = domain-specific), `authors`, `license`, and
+optionally `requires` (minimum omnibenchmark version), `benchmarks`,
+`inputs`, `outputs`, `environments`. Source and schema:
+`github.com/omnibenchmark/obcommons` (`src/content.config.ts`).
+
+What an entry does **not** tell you:
+
+- **Whether it fits your stage.** `stage` is a free string and `inputs` /
+  `outputs` are the ids of the benchmark it was written for. Compare them with
+  your stage's contract (see `omnibenchmark-plan`) before reusing it.
+- **The entrypoint name.** Read `omnibenchmark.yaml` in the repository at the
+  listed commit; the plan's `repository.entrypoint` must match a key there.
+- **That it runs.** Registry CI only checks the URL and commit resolve.
+  Check `requires` against `ob --version`, then run it (§9).
+
+A match means you add the module to the plan with the listed `url` and
+`commit` and skip the rest of this skill. A near match is worth raising with
+the author before writing a new one. If the author then writes a reusable
+module, suggest adding it to the registry: a pull request adding
+`modules/<id>.yaml` (the filename is the id).
+
+Then, these answers change the scaffold command itself, so get them first. Ask as
 either/or, not open-ended:
 
 1. **Which plan and which stage?** You need the plan YAML (path or URL) and the
@@ -118,6 +153,7 @@ verified against a freshly generated module:
 | `env/` (singular, empty) — and the emitted `.gitignore` ignores `env/`, so even its `.gitkeep` is never committed | delete it; use `envs/<name>.yml` (§4) |
 | no `LICENSE` file, though the help text claims a LICENSE check | add the full license text matching the SPDX id in `CITATION.cff` |
 | no `pixi.toml` | see §4 |
+| `.gitignore` has no `.pixi/`, so the first `pixi install` puts the whole environment in `git status` | append `.pixi/` (keep `pixi.lock` tracked) |
 | `entrypoints: {default: run.py}` | replace with named entrypoints, one per stage served (§7) |
 | `CITATION.cff` has `https://github.com/CHANGE_ME/<module>` in `url` and `repository-code`; a one-word `--author-name` yields `family-names: "Ben"`, `given-names: ""` | fix both by hand before the first push |
 | no CI workflow | §9 |
@@ -202,6 +238,14 @@ entrypoints:
 
 An entrypoint value may carry a prefix command (the exemplars use
 `pca-prof: prof.sh pca.py` for a profiled variant).
+
+**Check the file name against the standard library before using it.** Naming
+the script after its stage or step is the convention, but a Python script's
+directory goes first on `sys.path`, so `select.py`, `random.py`, `types.py`,
+`signal.py` or `io.py` shadows the stdlib module and breaks imports
+deep inside numpy or anndata with an error that never names your file. Prefix
+it instead — `scanpy` uses `feat-select.py` for exactly this step. Check with
+`python -c "import sys; print('<name>' in sys.stdlib_module_names)"`.
 
 **Always keep a `default:` alias pointing at the module's primary entrypoint.**
 Without it `ob validate module` warns `omnibenchmark.yaml 'entrypoints' is

@@ -195,6 +195,10 @@ stages:
 - `repository.entrypoint` names one entrypoint key from the module's own
   `omnibenchmark.yaml`; omitted, it is `default`. This is how one module repo
   serves several stages.
+- Before adding a module, look for a reusable one in the obcommons registry
+  (`https://omnibenchmark.github.io/obcommons/modules.json`); its entries give
+  `repository.url` and `commit` ready to paste. How to query it and what an
+  entry does not guarantee: `omnibenchmark-module` skill, §0.
 - `id` values must not start with a digit — they become Snakemake rule names
   (verified error message in `references/plan-reference.md`).
 
