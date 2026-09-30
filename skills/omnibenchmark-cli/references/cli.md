@@ -1,8 +1,8 @@
-<!-- ob-version: v0.6.0-59-g7ddb9f3 (branch gather-lean-3) -->
+<!-- ob-version: OmniBenchmark CLI, version 0.7.0 -->
 
 # `ob` command reference
 
-Generated from the installed binary (`ob --version` → `v0.6.0-59-g7ddb9f3 (branch gather-lean-3)`) by
+Generated from the installed binary (`ob --version` → `OmniBenchmark CLI, version 0.7.0`) by
 `scripts/refresh_cli_reference.py`. Do not edit by hand.
 
 ## Commands
@@ -74,7 +74,7 @@ Commands:
 ## `ob cite`
 
 ```text
-Usage: python -m omnibenchmark.cli.main cite [OPTIONS]
+Usage: ob cite [OPTIONS]
 
   Extract citation metadata from CITATION.cff files in benchmark modules.
 
@@ -97,7 +97,7 @@ Options:
 ## `ob collect`
 
 ```text
-Usage: python -m omnibenchmark.cli.main collect [OPTIONS] COMMAND [ARGS]...
+Usage: ob collect [OPTIONS] COMMAND [ARGS]...
 
   Gather scattered benchmark artefacts into combined tables.
 
@@ -111,8 +111,7 @@ Commands:
 ## `ob collect performance`
 
 ```text
-Usage: python -m omnibenchmark.cli.main collect performance 
-           [OPTIONS]
+Usage: ob collect performance [OPTIONS]
 
   Gather all performance.txt files into a combined performances.tsv.
 
@@ -130,7 +129,7 @@ Options:
 ## `ob create`
 
 ```text
-Usage: python -m omnibenchmark.cli.main create [OPTIONS] COMMAND [ARGS]...
+Usage: ob create [OPTIONS] COMMAND [ARGS]...
 
   Create new benchmarks or modules from templates.
 
@@ -146,7 +145,7 @@ Commands:
 ## `ob create benchmark`
 
 ```text
-Usage: python -m omnibenchmark.cli.main create benchmark [OPTIONS] [PATH]
+Usage: ob create benchmark [OPTIONS] [PATH]
 
   Create a new benchmark from a template.
 
@@ -172,7 +171,7 @@ Options:
 ## `ob create module`
 
 ```text
-Usage: python -m omnibenchmark.cli.main create module [OPTIONS] PATH
+Usage: ob create module [OPTIONS] PATH
 
   Create a new module from a template.
 
@@ -208,7 +207,7 @@ Options:
 ## `ob describe`
 
 ```text
-Usage: python -m omnibenchmark.cli.main describe [OPTIONS] COMMAND [ARGS]...
+Usage: ob describe [OPTIONS] COMMAND [ARGS]...
 
   Describe benchmarks and/or information about them.
 
@@ -225,8 +224,7 @@ Commands:
 ## `ob describe snakemake`
 
 ```text
-Usage: python -m omnibenchmark.cli.main describe snakemake 
-           [OPTIONS] BENCHMARK
+Usage: ob describe snakemake [OPTIONS] BENCHMARK
 
   Export a snakemake computational graph to dot format.
 
@@ -240,7 +238,7 @@ Options:
 ## `ob describe status`
 
 ```text
-Usage: python -m omnibenchmark.cli.main describe status [OPTIONS] BENCHMARK
+Usage: ob describe status [OPTIONS] BENCHMARK
 
   Show the status of a benchmark.
 
@@ -262,7 +260,7 @@ Options:
 ## `ob describe topology`
 
 ```text
-Usage: python -m omnibenchmark.cli.main describe topology [OPTIONS] BENCHMARK
+Usage: ob describe topology [OPTIONS] BENCHMARK
 
   Export benchmark topology to MERMAID diagram format.
 
@@ -282,7 +280,7 @@ Options:
 ## `ob remote`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote [OPTIONS] COMMAND [ARGS]...
+Usage: ob remote [OPTIONS] COMMAND [ARGS]...
 
   Manage remote storage.
 
@@ -299,8 +297,7 @@ Commands:
 ## `ob remote files`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote files [OPTIONS] COMMAND
-                                                     [ARGS]...
+Usage: ob remote files [OPTIONS] COMMAND [ARGS]...
 
   Manage files in remote storage.
 
@@ -316,8 +313,7 @@ Commands:
 ## `ob remote files checksum`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote files checksum 
-           [OPTIONS] BENCHMARK
+Usage: ob remote files checksum [OPTIONS] BENCHMARK
 
   Generate md5sums of all benchmark outputs.
 
@@ -331,8 +327,7 @@ Options:
 ## `ob remote files download`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote files download 
-           [OPTIONS] BENCHMARK
+Usage: ob remote files download [OPTIONS] BENCHMARK
 
   Download all or specific files for a benchmark.
 
@@ -352,7 +347,7 @@ Options:
 ## `ob remote files list`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote files list [OPTIONS] BENCHMARK
+Usage: ob remote files list [OPTIONS] BENCHMARK
 
   List all or specific files for a benchmark.
 
@@ -371,8 +366,7 @@ Options:
 ## `ob remote policy`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote policy [OPTIONS] COMMAND
-                                                      [ARGS]...
+Usage: ob remote policy [OPTIONS] COMMAND [ARGS]...
 
   Manage storage policies. DEPRECATED: use your cloud provider's IAM tooling
   directly. (DEPRECATED)
@@ -387,8 +381,7 @@ Commands:
 ## `ob remote policy create`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote policy create 
-           [OPTIONS]
+Usage: ob remote policy create [OPTIONS]
 
   Generate an S3/MinIO IAM policy for a benchmark bucket.
 
@@ -411,8 +404,7 @@ Options:
 ## `ob remote version`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote version [OPTIONS] COMMAND
-                                                       [ARGS]...
+Usage: ob remote version [OPTIONS] COMMAND [ARGS]...
 
   Manage benchmark versions.
 
@@ -428,8 +420,7 @@ Commands:
 ## `ob remote version create`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote version create 
-           [OPTIONS] BENCHMARK
+Usage: ob remote version create [OPTIONS] BENCHMARK
 
   Create a new benchmark version.
 
@@ -443,8 +434,7 @@ Options:
 ## `ob remote version diff`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote version diff 
-           [OPTIONS] BENCHMARK
+Usage: ob remote version diff [OPTIONS] BENCHMARK
 
   Show differences between 2 benchmark versions.
 
@@ -460,8 +450,7 @@ Options:
 ## `ob remote version list`
 
 ```text
-Usage: python -m omnibenchmark.cli.main remote version list 
-           [OPTIONS] BENCHMARK
+Usage: ob remote version list [OPTIONS] BENCHMARK
 
   List all available benchmark versions.
 
@@ -475,8 +464,7 @@ Options:
 ## `ob run`
 
 ```text
-Usage: python -m omnibenchmark.cli.main run [OPTIONS] BENCHMARK
-                                            [SNAKEMAKE_ARGS]...
+Usage: ob run [OPTIONS] BENCHMARK [SNAKEMAKE_ARGS]...
 
   Run a benchmark.
 
@@ -533,13 +521,24 @@ Options:
                            Only the named stage and its transitive ancestors
                            are kept in the resolved DAG, and metric collectors
                            whose inputs reference pruned stages are skipped.
+  --filter FILE|BLOB       Run a slice of the benchmark defined by an obfilter
+                           selection: a path to a YAML/JSON file of picks, a
+                           file containing a packed blob, or an inline packed
+                           blob. Prunes the DAG to the picked
+                           stages/modules/param-combos. Incompatible with
+                           -m/--module.
+  --allow-drift            With --filter: if the benchmark has changed since
+                           the filter was made and some selected
+                           stages/modules/parameters no longer exist, run the
+                           part that still matches instead of erroring.
+                           Skipped selections are listed as warnings.
   --help                   Show this message and exit.
 ```
 
 ## `ob validate`
 
 ```text
-Usage: python -m omnibenchmark.cli.main validate [OPTIONS] COMMAND [ARGS]...
+Usage: ob validate [OPTIONS] COMMAND [ARGS]...
 
   Validate benchmarks and modules.
 
@@ -555,7 +554,7 @@ Commands:
 ## `ob validate module`
 
 ```text
-Usage: python -m omnibenchmark.cli.main validate module [OPTIONS] [PATH]
+Usage: ob validate module [OPTIONS] [PATH]
 
   Validate module (metadata, try to run).
 
@@ -577,7 +576,7 @@ Options:
 ## `ob validate plan`
 
 ```text
-Usage: python -m omnibenchmark.cli.main validate plan [OPTIONS] BENCHMARK
+Usage: ob validate plan [OPTIONS] BENCHMARK
 
   Validate benchmark YAML plan structure.
 
@@ -592,7 +591,7 @@ Options:
 ## `ob archive`
 
 ```text
-Usage: python -m omnibenchmark.cli.main archive [OPTIONS] BENCHMARK
+Usage: ob archive [OPTIONS] BENCHMARK
 
   Archive a benchmark and its artifacts.
 
@@ -625,7 +624,7 @@ Options:
 ## `ob dashboard`
 
 ```text
-Usage: python -m omnibenchmark.cli.main dashboard [OPTIONS] BENCHMARK
+Usage: ob dashboard [OPTIONS] BENCHMARK
 
   Generate a dashboard from benchmark results.
 

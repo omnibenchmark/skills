@@ -30,6 +30,7 @@ cp -r skills/omnibenchmark-module ~/.claude/skills/
 | `omnibenchmark-packaging` | pixi environments, dependency bumps, conda export |
 | `omnibenchmark-wrapping` | Wraps an upstream Python/R package or repo to satisfy a stage |
 | `omnibenchmark-validate` | Plan and module validation, stage validators, CI |
+| `omnibenchmark-reproducibility` | Audits a module for uncontrolled randomness, runs a seed/replicate plan, assigns a tier A–D |
 
 ## Versions
 

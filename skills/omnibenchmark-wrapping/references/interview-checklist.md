@@ -101,7 +101,8 @@ This is the question that most often gets baked in wrong.
     recorded as a GPU arm is worse than a failed job."
 16. **Non-determinism** — is the tool reproducible given the seed, and on how
     many threads? If thread count changes the numbers, that belongs in the
-    README and probably in the plan's `resources`.
+    README and probably in the plan's `resources`. To test it and assign a
+    tier, use the `omnibenchmark-reproducibility` skill.
 
 ## F. Scope of this increment
 

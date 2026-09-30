@@ -76,6 +76,17 @@ A plan pins a module by `repository.{url, commit}`, but the commit does not exis
 the module is pushed. Should the skills teach push-then-pin-then-PR, or is a branch or tag
 pin acceptable while an arm is under review?
 
+### 7. Reproducibility tiers
+
+`omnibenchmark-reproducibility` proposes tiers A (identical across platforms),
+B (identical on one `(environment, seed, platform)`), C (seed reduces variance) and
+D (no control), with `@threads=N` and `seed-inert` qualifiers. For now the result is
+recorded in the module README. Open questions: should the tier be a field in the
+module's `omnibenchmark.yaml` or in obcommons so a plan can filter or gate on it?
+Who re-certifies when a lock or pin changes: CI, or the author? Is A tier ever
+realistic for BLAS-heavy methods without `MKL_CBWR`-style pinning, or should A
+allow a declared tolerance?
+
 ## Upstream issues worth filing
 
 Found while authoring; all verified against the `gather-lean-3` checkout.
