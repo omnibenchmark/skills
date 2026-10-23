@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: resource-perturbase
+expected_outcome: |
+  Classified as a resource/database paper (neither method nor benchmark). Datasets listed from Supplementary Table 1 with GSE and PRJNA accessions; methods run by the pipeline (Mixscape, scMAGeCK, GSFA, SCEPTRE, Wilcoxon, t test ...) are recorded as used, not as compared arms. A file is written and a table shown.

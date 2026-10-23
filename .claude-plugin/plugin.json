@@ -1,6 +1,6 @@
 {
   "name": "omnibenchmark",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Agent skills for authoring, porting and validating Omnibenchmark benchmarks.",
   "author": { "name": "Omnibenchmark" },
   "repository": "https://github.com/omnibenchmark/skills",

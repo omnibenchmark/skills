@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: method-harmony
+expected_outcome: |
+  Classified as a method paper with Harmony introduced_here. Competitor methods (e.g. MNN, Seurat, scanorama, BBKNN, LIGER...) listed as compared; metrics include LISI; datasets with accessions or 10x URLs where the paper gives them, gaps where it does not. A file is written and a table shown.
