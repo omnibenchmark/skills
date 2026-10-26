@@ -31,7 +31,7 @@ cp -r skills/omnibenchmark-module ~/.claude/skills/
 | `omnibenchmark-wrapping` | Wraps an upstream Python/R package or repo to satisfy a stage |
 | `omnibenchmark-validate` | Plan and module validation, stage validators, CI |
 | `omnibenchmark-reproducibility` | Audits a module for uncontrolled randomness, runs a seed/replicate plan, assigns a tier A–D |
-| `omnibenchmark-data-extraction` | DOI → datasets × methods × metrics table (BEAD), with accessions, code links and a method/benchmark/resource classification |
+| `omnibenchmark-data-extraction` | DOI → datasets (accessions) + methods (code links) in BEAD, with a method/benchmark/resource classification |
 
 ## Versions
 

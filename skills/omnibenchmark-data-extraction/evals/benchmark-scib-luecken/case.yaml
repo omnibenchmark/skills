@@ -1,4 +1,4 @@
 schema_version: "1.1"
 name: benchmark-scib-luecken
 expected_outcome: |
-  Classified as a benchmark paper. Datasets include the pancreas, immune, lung, mouse brain and ATAC tasks with GEO/ArrayExpress accessions and the figshare deposit; around 16 integration methods; batch-removal and bio-conservation metrics (kBET, iLISI, ASW, ARI, NMI, ...). A file with the table is written and a table is shown in the reply.
+  Classified as a benchmark paper. Datasets include the pancreas, immune, lung, mouse brain and ATAC tasks with GEO/ArrayExpress accessions and the figshare deposit; around 16 integration methods. A file with the table is written and a table is shown in the reply.

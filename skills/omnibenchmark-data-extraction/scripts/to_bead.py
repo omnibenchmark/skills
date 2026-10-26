@@ -5,22 +5,22 @@ then write the BEAD outputs.
     to_bead.py DIR [--no-quote-check]
 
 DIR is the directory fetch_paper.py made. The agent writes tables/*.tsv into it
-(columns in references/extraction-schema.md): paper, tasks, methods, datasets,
-metrics, comparisons. Writes next to them:
+(columns in references/extraction-schema.md): paper, datasets, methods.
+Writes next to them:
 
     extraction.json the tables as one document (derived; do not edit by hand)
-    table.tsv       long form: one row per (comparison, dataset, method, metric)
     extraction.ttl  the same as RDF against bead-core (>= 0.2.0) / bead-software
 
-and prints a markdown summary (paper, comparisons, datasets) for the chat.
+and prints a markdown summary (paper, code, datasets) for the chat.
 
 Checks, each an error unless noted:
-  - required fields, known paper.type, unique ids, comparison ids resolve
+  - required fields, known paper.type, unique ids
   - paper.type "method" iff some method has introduced_here: true
   - every entity's evidence.quote occurs in fulltext.md or a suppl/ text file
     (compared lowercased, letters and digits only, so hyphenation and quote
     styles do not matter); a dataset without a quote passes if each of its
-    accession ids occurs there instead
+    accession ids occurs there instead, and a method without a quote passes if
+    its tool_url occurs there
   - warning: a dataset with neither accession nor URL; an accession whose id
     does not match its repository's pattern
 Exit status: 0 clean (warnings allowed), 1 errors. Stdlib only.
@@ -39,7 +39,7 @@ from fetch_paper import ACCESSIONS  # noqa: E402  same patterns the fetch step u
 PAPER_CLASS = {"method": "bead:MethodPaper", "benchmark": "bead:BenchmarkPaper",
                "resource": "bead:ResourcePaper", "other": "bead:Paper"}
 PAPER_TYPES = set(PAPER_CLASS)
-KINDS = ("tasks", "methods", "datasets", "metrics")
+KINDS = ("datasets", "methods")
 MAX_ROWS = 40  # datasets shown in the chat summary; the files hold all of them
 PATTERNS = {repo: re.compile(rf"^(?:{pat})$") for repo, pat in ACCESSIONS}
 
@@ -53,11 +53,8 @@ def ttl_str(s):
 
 
 TABLES = {  # file -> required columns; other columns are optional
-    "tasks": ["id", "label", "quote"],
-    "methods": ["id", "label", "role", "introduced_here", "quote"],
     "datasets": ["id", "label"],
-    "metrics": ["id", "label", "quote"],
-    "comparisons": ["id", "datasets", "methods", "metrics", "quote"],
+    "methods": ["id", "label", "role", "introduced_here"],
 }
 
 
@@ -103,19 +100,7 @@ def load_tables(d):
                 e["accessions"] = [dict(zip(("repository", "id"), a.split(":", 1) if ":" in a else ("", a)))
                                    for a in split(r.get("accessions"))]
                 e["urls"] = split(r.get("urls"))
-            elif name == "metrics":
-                hib = r.get("higher_is_better", "").lower()
-                e["higher_is_better"] = {"true": True, "yes": True, "false": False, "no": False}.get(hib)
-            elif name == "comparisons":
-                e.pop("label")
-                e["task"] = r.get("task", "")
-                for k in ("datasets", "methods", "metrics", "artifacts"):
-                    e[k] = split(r.get(k))
             ex[name].append(e)
-    for c in ex["comparisons"]:  # "*" = every entry of that kind
-        for k in ("datasets", "methods", "metrics"):
-            if c[k] == ["*"]:
-                c[k] = [e["id"] for e in ex[k]]
     return ex
 
 
@@ -134,7 +119,7 @@ def check(ex, corpus, quote_check):
         errors.append(f"methods {introduces} are introduced_here but paper.type is {paper.get('type')!r}")
 
     ids = {}
-    for kind in KINDS + ("comparisons",):
+    for kind in KINDS:
         for e in ex.get(kind, []):
             if not e.get("id"):
                 errors.append(f"{kind}: entry without id: {e.get('label')!r}")
@@ -142,16 +127,6 @@ def check(ex, corpus, quote_check):
             if e["id"] in ids:
                 errors.append(f"id {e['id']!r} used in both {ids[e['id']]} and {kind}")
             ids[e["id"]] = kind
-
-    for c in ex.get("comparisons", []):
-        refs = [("tasks", c.get("task"))] if c.get("task") else []
-        refs += [(k, i) for k in ("datasets", "methods", "metrics") for i in c.get(k, [])]
-        for kind, ref in refs:
-            if ids.get(ref) != kind:
-                errors.append(f"comparison {c['id']}: {ref!r} is not a known {kind[:-1]} id")
-        for k in ("datasets", "methods", "metrics"):
-            if not c.get(k):
-                warnings.append(f"comparison {c['id']}: no {k}")
 
     for d in ex.get("datasets", []):
         if not d.get("accessions") and not d.get("urls"):
@@ -162,7 +137,7 @@ def check(ex, corpus, quote_check):
                 warnings.append(f"dataset {d['id']}: {acc.get('id')!r} does not look like a {acc['repository']} id")
 
     if quote_check:
-        entities = [("paper", paper)] + [(k, e) for k in KINDS + ("comparisons",) for e in ex.get(k, [])]
+        entities = [("paper", paper)] + [(k, e) for k in KINDS for e in ex.get(k, [])]
         for kind, e in entities:
             q = (e.get("evidence") or {}).get("quote", "")
             label = e.get("id", "paper")
@@ -170,32 +145,15 @@ def check(ex, corpus, quote_check):
                 for acc in e["accessions"]:
                     if norm(acc.get("id", "")) not in corpus:
                         errors.append(f"dataset {label}: accession {acc.get('id')!r} not found in the paper text")
+            elif not q and kind == "methods" and any(t.get("url") for t in e.get("tools", [])):
+                for t in e["tools"]:
+                    if t.get("url") and norm(t["url"]) not in corpus:
+                        errors.append(f"method {label}: tool_url {t['url']!r} not found in the paper text")
             elif not q:
                 errors.append(f"{kind} {label}: no evidence.quote")
             elif norm(q) not in corpus:
                 errors.append(f"{kind} {label}: quote not found in the paper text: {q[:80]!r}")
     return errors, warnings
-
-
-def rows(ex):
-    by_id = {e["id"]: e for k in KINDS for e in ex.get(k, [])}
-    for c in ex.get("comparisons", []):
-        task = by_id.get(c.get("task"), {}).get("label", "")
-        for d in c.get("datasets", []) or [""]:
-            ds = by_id.get(d, {})
-            accs = ";".join(f"{a.get('repository')}:{a.get('id')}" for a in ds.get("accessions", []))
-            for m in c.get("methods", []) or [""]:
-                me = by_id.get(m, {})
-                for t in c.get("metrics", []) or [""]:
-                    yield {
-                        "doi": ex["paper"]["doi"], "comparison": c["id"], "task": task,
-                        "dataset": d, "dataset_label": ds.get("label", ""), "accessions": accs,
-                        "urls": ";".join(ds.get("urls", [])),
-                        "method": m, "method_label": me.get("label", ""),
-                        "introduced_here": str(bool(me.get("introduced_here"))).lower() if m else "",
-                        "metric": t, "metric_label": by_id.get(t, {}).get("label", ""),
-                        "artifacts": ";".join(c.get("artifacts", [])),
-                    }
 
 
 def turtle(ex):
@@ -207,17 +165,13 @@ def turtle(ex):
         "@prefix dcterms: <http://purl.org/dc/terms/> .",
         "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
         "@prefix schema: <http://schema.org/> .",
-        "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .",
         "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
         "",
         f"<{base}> a {PAPER_CLASS[p['type']]} ; dcterms:title {ttl_str(p['title'])}"
         + (f' ; dcterms:issued "{p["year"]}"^^xsd:gYear' if p.get("year") else "")
         + "".join(f" ;\n    bead:introduces {iri(m['id'])}" for m in ex.get("methods", []) if m.get("introduced_here"))
-        + "".join(f" ;\n    bead:reports {iri(c['id'])}" for c in ex.get("comparisons", []))
         + " .",
     ]
-    for t in ex.get("tasks", []):
-        out.append(f"{iri(t['id'])} a bead:Task ; skos:prefLabel {ttl_str(t['label'])} .")
     for m in ex.get("methods", []):
         line = f"{iri(m['id'])} a bead:Method ; rdfs:label {ttl_str(m['label'])}"
         for n, tool in enumerate(m.get("tools", [])):
@@ -244,33 +198,17 @@ def turtle(ex):
         for u in d.get("urls", []):
             line += f" ;\n    schema:url <{u}>"
         out.append(line + " .")
-    for m in ex.get("metrics", []):
-        out.append(f"{iri(m['id'])} a bead:Metric ; skos:prefLabel {ttl_str(m['label'])} .")
-    for c in ex.get("comparisons", []):
-        line = f"{iri(c['id'])} a bead:Comparison"
-        if c.get("task"):
-            line += f" ;\n    bead:addressesTask {iri(c['task'])}"
-        for prop, key in (("bead:evaluates", "methods"), ("bead:usesDataset", "datasets"), ("bead:usesMetric", "metrics")):
-            if c.get(key):
-                line += f" ;\n    {prop} " + ", ".join(iri(i) for i in c[key])
-        for n, art in enumerate(c.get("artifacts", [])):
-            aid = f"{c['id']}-artifact{n}"
-            line += f" ;\n    bead:producesArtifact {iri(aid)}"
-            out.append(f"{iri(aid)} a bead:Artifact ; rdfs:label {ttl_str(art)} .")
-        out.append(line + " .")
     return "\n".join(out) + "\n"
 
 
 def markdown(ex):
     p = ex["paper"]
-    by_id = {e["id"]: e.get("label", e["id"]) for k in KINDS for e in ex.get(k, [])}
-    lab = lambda ids: ", ".join(by_id.get(i, i) for i in ids) if len(ids) <= 8 else f"{len(ids)} entries"  # noqa: E731
     out = [f"**{p['title']}** ({p.get('year', '')}) doi:{p['doi']}",
            f"Type: **{p['type']}**: {p.get('type_rationale', '')}", "",
-           "| comparison | task | datasets | methods | metrics | artifacts |", "|---|---|---|---|---|---|"]
-    for c in ex.get("comparisons", []):
-        out.append(f"| {c['id']} | {by_id.get(c.get('task'), '')} | {lab(c.get('datasets', []))} | "
-                   f"{lab(c.get('methods', []))} | {lab(c.get('metrics', []))} | {'; '.join(c.get('artifacts', []))} |")
+           "| method | role | code |", "|---|---|---|"]
+    for m in ex.get("methods", []):
+        code = [t.get("url") or f"{t.get('registry', '')}:{t.get('identifier', '')}" for t in m.get("tools", [])]
+        out.append(f"| {m['label']} | {m['role']} | {', '.join(code) or '**none given**'} |")
     out += ["", "| dataset | accessions / urls |", "|---|---|"]
     datasets = ex.get("datasets", [])
     for d in datasets[:MAX_ROWS]:
@@ -304,14 +242,9 @@ def main():
         print(f"{len(errors)} error(s); fix extraction.json and rerun", file=sys.stderr)
         return 1
 
-    table = list(rows(ex))
-    with open(a.dir / "table.tsv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(table[0]) if table else ["doi"], delimiter="\t")
-        w.writeheader()
-        w.writerows(table)
     (a.dir / "extraction.ttl").write_text(turtle(ex))
     print(markdown(ex))
-    print(f"\nwrote {a.dir}/table.tsv ({len(table)} rows), {a.dir}/extraction.ttl", file=sys.stderr)
+    print(f"\nwrote {a.dir}/extraction.json, {a.dir}/extraction.ttl", file=sys.stderr)
     return 0
 
 

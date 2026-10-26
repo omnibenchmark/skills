@@ -2,12 +2,12 @@
 
 The agent writes these tab-separated files into `<extraction dir>/tables/`.
 `scripts/to_bead.py` reads them, builds `extraction.json` (do not edit it by
-hand; it is regenerated on every run), checks it, and derives `table.tsv`,
-`extraction.ttl` and the chat summary.
+hand; it is regenerated on every run), checks it, and derives `extraction.ttl`
+and the chat summary. Three tables: `paper.tsv`, `datasets.tsv`, `methods.tsv`.
 
 Conventions: tab-separated with a header row; a cell that holds a list is
 `;`-separated; ids are short kebab-case slugs, unique across all tables
-(`scvi`, `pancreas-celseq`, `ari`). Extra columns are allowed and ignored, so
+(`scvi`, `pancreas-celseq`). Extra columns are allowed and ignored, so
 keep any useful source columns (cell counts, platform) alongside.
 
 Build long tables with a script rather than by typing them. For example,
@@ -40,9 +40,7 @@ reads. The examples are illustrative.
 | `source` | `source` from meta.json |
 | `gap` | one row per gap; repeat the field |
 
-## tasks.tsv: `id, label, quote`
-
-## methods.tsv: `id, label, role, introduced_here, quote`, optional `reference, tool_kind, tool_url, tool_registry, tool_identifier, tool_version`
+## methods.tsv: `id, label, role, introduced_here`, optional `quote, reference, tool_kind, tool_url, tool_registry, tool_identifier, tool_version`
 
 - `role`: `proposed` (introduced here), `compared` (a competitor arm),
   `baseline` (trivial or control arm: random, unintegrated, PCA), `used` (run as
@@ -52,6 +50,8 @@ reads. The examples are illustrative.
   `tool_registry`: PyPI, CRAN, Bioconductor, conda-forge, bioconda, Docker Hub,
   and `tool_identifier`, the name there), or `software`. Version only if stated.
 - `reference`: the citation marker as it appears in fulltext.md (`[21]`).
+- `quote`: may be left empty when `tool_url` is set; the checker then requires
+  the URL to occur in the paper or a supplement.
 
 ## datasets.tsv: `id, label`, optional `accessions, urls, organism, modality, notes, quote`
 
@@ -70,20 +70,6 @@ same accession. A scaffold's data stage wants one entry per dataset it will run.
   requires every accession id to occur in the paper or a supplement instead.
   A dataset with neither a quote nor accessions fails the check.
 
-## metrics.tsv: `id, label, quote`, optional `higher_is_better`
-
-`higher_is_better`: `true`, `false`, or empty when the paper does not say and it
-is not standard.
-
-## comparisons.tsv: `id, datasets, methods, metrics, quote`, optional `task, artifacts`
-
-One row per block of results the paper reports: these methods, run on these
-datasets, scored with these metrics (`;`-separated ids, or `*` for every entry
-of that table). `artifacts` names where the results are, e.g.
-`Fig. 3;Supplementary Data 3`. `table.tsv` expands each row into its
-cross product. Do not model which metric applies to which method output here:
-split a comparison only where the paper itself reports separate blocks.
-
 ## Paper type
 
 - `method`: introduces at least one method or tool (`introduced_here: true`).
@@ -101,11 +87,7 @@ The checker enforces `method` ⇔ some `introduced_here: true`.
 
 | table | bead | property |
 | --- | --- | --- |
-| paper | `bead:MethodPaper` / `bead:BenchmarkPaper` / `bead:ResourcePaper` / `bead:Paper` | `dcterms:title`, `bead:introduces` → method, `bead:reports` → comparison |
+| paper | `bead:MethodPaper` / `bead:BenchmarkPaper` / `bead:ResourcePaper` / `bead:Paper` | `dcterms:title`, `bead:introduces` → method |
 | methods | `bead:Method` | `bead:implementedIn` → tool |
 | tool_* columns | `bead:Repository` / `bead:Package` / `schema:SoftwareApplication` | `schema:url`, `bead:hasVersion`, `bead:hasRegistryIdentifier`, `bead:isAvailableFrom` → `bead:SoftwareRegistry` |
 | datasets | `bead:Dataset` | `dcterms:identifier` (`GEO:GSE81076`), `schema:url` |
-| metrics | `bead:Metric` | `skos:prefLabel` |
-| tasks | `bead:Task` | `skos:prefLabel` |
-| comparisons | `bead:Comparison` | `bead:evaluates`, `bead:usesDataset`, `bead:usesMetric`, `bead:addressesTask`, `bead:producesArtifact` |
-| artifacts | `bead:Artifact` | `rdfs:label` |
