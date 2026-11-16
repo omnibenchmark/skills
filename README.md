@@ -26,6 +26,7 @@ cp -r skills/omnibenchmark-module ~/.claude/skills/
 | --- | --- |
 | `omnibenchmark-cli` | Resolves `ob` commands against the installed binary rather than from memory |
 | `omnibenchmark-plan` | Authors and migrates benchmark plans at `api_version` 0.7.0 |
+| `omnibenchmark-migrate` | Migrates a benchmark (plan, modules, collectors → gathers) to a newer `api_version`, currently 0.8.0, and checks the outputs did not change |
 | `omnibenchmark-module` | Takes `ob create module` output to a module that runs under a plan |
 | `omnibenchmark-packaging` | pixi environments, dependency bumps, conda export |
 | `omnibenchmark-wrapping` | Wraps an upstream Python/R package or repo to satisfy a stage |
