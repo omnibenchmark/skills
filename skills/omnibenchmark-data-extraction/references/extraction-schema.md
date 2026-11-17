@@ -38,6 +38,8 @@ reads. The examples are illustrative.
 | `type_rationale` | one sentence |
 | `quote` | verbatim evidence for the type |
 | `source` | `source` from meta.json |
+| `extracted_by` | the model that read the paper and wrote these tables, as its exact id (`claude-opus-5-5`); required |
+| `extracted_on` | date of the extraction, `YYYY-MM-DD` |
 | `gap` | one row per gap; repeat the field |
 
 ## methods.tsv: `id, label, role, introduced_here`, optional `quote, reference, tool_kind, tool_url, tool_registry, tool_identifier, tool_version`

@@ -64,6 +64,9 @@ with a short script kept in the extraction directory, never by typing them.
   then a portal URL; record the processed-data deposit when there is one.
 - **Methods: role and code.** `proposed`, `compared`, `baseline` or `used`
   (run by a pipeline, not evaluated). Fill `tool_*` only from the text.
+- **Record who extracted it.** `paper.tsv` gets `extracted_by` (your exact
+  model id) and `extracted_on` (today). `to_bead.py` refuses tables without
+  `extracted_by`.
 - **Do not invent.** No accession, URL or version that is not in the text.
   A missing pointer is a `gap` row in `paper.tsv`.
 - **Evidence is cheap**: a dataset with an accession or a method with a

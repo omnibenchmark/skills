@@ -107,7 +107,7 @@ def load_tables(d):
 def check(ex, corpus, quote_check):
     errors, warnings = [], []
     paper = ex.get("paper") or {}
-    for k in ("doi", "title", "type"):
+    for k in ("doi", "title", "type", "extracted_by"):
         if not paper.get(k):
             errors.append(f"paper.{k} missing")
     if paper.get("type") and paper["type"] not in PAPER_TYPES:
@@ -204,7 +204,8 @@ def turtle(ex):
 def markdown(ex):
     p = ex["paper"]
     out = [f"**{p['title']}** ({p.get('year', '')}) doi:{p['doi']}",
-           f"Type: **{p['type']}**: {p.get('type_rationale', '')}", "",
+           f"Type: **{p['type']}**: {p.get('type_rationale', '')}",
+           f"Extracted by {p['extracted_by']}" + (f" on {p['extracted_on']}" if p.get("extracted_on") else ""), "",
            "| method | role | code |", "|---|---|---|"]
     for m in ex.get("methods", []):
         code = [t.get("url") or f"{t.get('registry', '')}:{t.get('identifier', '')}" for t in m.get("tools", [])]

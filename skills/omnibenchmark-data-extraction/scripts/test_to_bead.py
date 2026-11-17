@@ -9,7 +9,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 TEXT = ("We present FooTool, a method for cell clus-\ntering. It is compared against Bar on PBMC data "
         "(GSE12345). Code: https://github.com/x/bar.")
 TABLES = {
-    "paper": "field\tvalue\ndoi\t10.1/x\ntitle\tT\nyear\t2024\ntype\tmethod\nquote\tWe present FooTool, a method\ngap\tno code link for Bar\n",
+    "paper": "field\tvalue\ndoi\t10.1/x\ntitle\tT\nyear\t2024\ntype\tmethod\nextracted_by\tclaude-test\nquote\tWe present FooTool, a method\ngap\tno code link for Bar\n",
     "methods": ("id\tlabel\trole\tintroduced_here\ttool_kind\ttool_registry\ttool_identifier\ttool_url\tquote\n"
                 "foo\tFooTool\tproposed\ttrue\tpackage\tPyPI\tfootool\t\tWe present FooTool\n"
                 "bar\tBar\tcompared\tfalse\trepository\t\t\thttps://github.com/x/bar\t\n"),  # no quote: the url is checked
@@ -36,7 +36,8 @@ bad = dict(TABLES)
 bad["datasets"] = "id\tlabel\taccessions\tquote\nidx\tPBMC\tGEO:GSE99999\t\n"
 bad["methods"] = (TABLES["methods"].replace("proposed\ttrue", "proposed\tfalse")
                   .replace("We present FooTool", "FooTool is presented").replace("x/bar", "x/baz"))
+bad["paper"] = TABLES["paper"].replace("extracted_by\tclaude-test\n", "")
 r, _ = run(bad)
-for msg in ("GSE99999", "quote not found", "x/baz", "no method has introduced_here"):
+for msg in ("paper.extracted_by missing", "GSE99999", "quote not found", "x/baz", "no method has introduced_here"):
     assert r.returncode == 1 and msg in r.stderr, (msg, r.stderr)
 print("ok")
